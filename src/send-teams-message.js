@@ -18,6 +18,8 @@ const { isError } = require('./helper-functions');
  * @returns {Array<Object>} List of all jobs with `name` and `value` keys.
  */
 module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, sha, workflow, runId, incomingWebhook) => {
+    core.startGroup('Send Message to Teams');
+
     branch = branch.replace(/^refs\/heads\//, '');
 
     core.info(`==> branch: ${branch}`);
@@ -131,6 +133,8 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
     else {
         core.info('==> Skipping sending of message to MS Teams...');
     }
+
+    core.endGroup();
 
     return result;
 };
