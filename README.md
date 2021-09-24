@@ -1,9 +1,9 @@
 # notify-teams
 
-[![Changelog](https://img.shields.io/github/package-json/v/ecmwf-actions/notify-teams)](CHANGELOG.md)
-[![Build Status](https://img.shields.io/github/workflow/status/ecmwf-actions/notify-teams/ci/main)](https://github.com/ecmwf-actions/notify-teams/actions/workflows/ci.yml?query=branch:main)
-[![Code Coverage](https://img.shields.io/codecov/c/gh/ecmwf-actions/notify-teams/main)](https://codecov.io/gh/ecmwf-actions/notify-teams)
-[![Licence](https://img.shields.io/github/license/ecmwf-actions/notify-teams)](https://github.com/ecmwf-actions/notify-teams/blob/main/LICENSE)
+[![Changelog](https://img.shields.io/github/package-json/v/ecmwf-actions/notify-teams/develop)](CHANGELOG.md)
+[![Build Status](https://img.shields.io/github/workflow/status/ecmwf-actions/notify-teams/ci/develop)](https://github.com/ecmwf-actions/notify-teams/actions/workflows/ci.yml?query=branch:develop)
+[![Code Coverage](https://img.shields.io/codecov/c/gh/ecmwf-actions/notify-teams/develop)](https://codecov.io/gh/ecmwf-actions/notify-teams/branch/develop)
+[![Licence](https://img.shields.io/github/license/ecmwf-actions/notify-teams)](https://github.com/ecmwf-actions/notify-teams/blob/develop/LICENSE)
 
 A Github action that posts messages via Microsoft Teams when a workflow job fails.
 
