@@ -78,8 +78,10 @@ jobs:
 **Multiline Support:** yes  
 **Default:**
 
-    failure
-    fixed
+```text
+failure
+fixed
+```
 
 ### `job`
 
@@ -135,22 +137,22 @@ The list of dependent job contexts, must be encoded as JSON. To pass the current
 ### `jobs`
 
 List of considered jobs and their stats.  
-**Example:** `...`
+**Example:** `[{"name": "ci", "value": "success"}]`
 
 ### `workflow_status`
 
 Status of the previous workflow run.  
-**Example:** `...`
+**Example:** `success`
 
 ### `previous_conclusion`
 
 Conclusion of the previous workflow run.  
-**Example:** `...`
+**Example:** `unknown`
 
 ### `message_sent`
 
 Whether or not the message has been sent.  
-**Example:** `...`
+**Example:** `true`
 
 ## Development
 
