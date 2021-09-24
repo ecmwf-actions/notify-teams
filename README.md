@@ -13,8 +13,8 @@ A Github action that posts messages via Microsoft Teams when a workflow job fail
 * Supports workflows with both single and multiple jobs
 * Notification on configurable workflow states:
   * `failure`: current workflow run has failed or was cancelled
-  * `fixed`: current workflow run has succeeded
-  * `success`: first successful workflow run after a failure or cancellation
+  * `fixed`: first successful workflow run after a failure or cancellation
+  * `success`: current workflow run has succeeded
 * Colourful message card design for notifications
 
 ## Supported Operating Systems
@@ -29,12 +29,10 @@ A Github action that posts messages via Microsoft Teams when a workflow job fail
 ```yaml
 steps:
 - name: Notify Teams
-  if: failure()
+  if: always() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
   uses: ecmwf-actions/notify-teams@v1
   with:
     incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
-    notify_on: |
-      failure
 ```
 
 ### Multiple Jobs
@@ -64,6 +62,19 @@ jobs:
       with:
         incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
         needs_context: ${{ toJSON(needs) }}
+```
+
+### Notify on Failure Only
+
+```yaml
+steps:
+- name: Notify Teams
+  if: failure() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  uses: ecmwf-actions/notify-teams@v1
+  with:
+    incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
+    notify_on: |
+      failure
 ```
 
 ## Inputs
