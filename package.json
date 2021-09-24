@@ -1,0 +1,62 @@
+{
+  "name": "notify-teams",
+  "version": "0.0.1",
+  "description": "A Github action that notifies about workflow status via Microsoft Teams.",
+  "main": "dist/index.js",
+  "scripts": {
+    "postinstall": "scripts/postinstall.sh",
+    "build": "npx @vercel/ncc build src/index.js --minify --license licenses.txt --no-cache",
+    "test": "jest --ci --coverage",
+    "lint": "eslint --fix src/** tests/**",
+    "version": "auto-changelog && git add CHANGELOG.md"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecmwf-actions/notify-teams"
+  },
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "@actions/http-client": "^1.0.11",
+    "@octokit/core": "^3.5.1"
+  },
+  "devDependencies": {
+    "auto-changelog": "^2.3.0",
+    "eslint": "^7.30.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "jest": "^27.0.6"
+  },
+  "jest": {
+    "clearMocks": true,
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!<rootDir>/node_modules/"
+    ]
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": false,
+      "node": true,
+      "commonjs": true,
+      "es2021": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:jest/all"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 12
+    },
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ]
+    }
+  },
+  "auto-changelog": {
+    "hideCredit": true,
+    "package": true,
+    "template": "keepachangelog"
+  }
+}
