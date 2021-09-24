@@ -1,6 +1,6 @@
 {
   "name": "notify-teams",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A Github action that notifies about workflow status via Microsoft Teams.",
   "main": "dist/index.js",
   "scripts": {
