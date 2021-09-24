@@ -90,7 +90,7 @@ fixed
 
 ### `job_context`
 
-**Required** The current job context, must be encoded as JSON. 
+**Required** The current job context, must be encoded as JSON.  
 **Default:** `${{ toJSON(job) }}`
 
 ### `needs_context`
