@@ -1,0 +1,68 @@
+name: Notify Teams
+description: |
+  A Github action that notifies about workflow status via Microsoft Teams.
+inputs:
+  incoming_webhook:
+    description: Public URL of the Microsoft Teams incoming webhook. To get the value, make sure that channel in Teams
+      has the appropriate connector set up.
+    required: true
+  notify_on:
+    description: The list of states to notify on. Allowed values are `failure`, `fixed` and `success`.
+    required: true
+    default: |
+      failure
+      fixed
+  job:
+    description: The ID of the current job.
+    required: true
+    default: ${{ github.job }}
+  job_context:
+    description: The current job context, must be encoded as JSON.
+    required: true
+    default: ${{ toJSON(job) }}
+  needs_context:
+    description: The list of dependent job contexts, must be encoded as JSON.
+    required: false
+  repository:
+    description: The currently checked out source repository name. Repository names should follow the standard Github
+      `owner/name` format.
+    required: true
+    default: ${{ github.repository }}
+  branch:
+    description: The repository branch name to check the CI workflow status for.
+    required: true
+    default: ${{ github.ref }}
+  sha:
+    description: The current repository commit SHA.
+    required: true
+    default: ${{ github.sha }}
+  workflow:
+    description: The name of the current workflow.
+    required: true
+    default: ${{ github.workflow }}
+  workflow_id:
+    description: The ID or filename of the CI workflow to check.
+    required: true
+    default: ci.yml
+  run_id:
+    description: The ID of the current workflow run.
+    required: true
+    default: ${{ github.run_id }}
+
+  github_token:
+    description: Github access token, with `actions:read` scope.
+    required: true
+    default: ${{ github.token }}
+
+outputs:
+  jobs:
+    description: List of considered jobs and their stats.
+  workflow_status:
+    description: Status of the previous workflow run.
+  previous_conclusion:
+    description: Conclusion of the previous workflow run.
+  message_sent:
+    description: Whether or not the message has been sent.
+runs:
+  using: node12
+  main: dist/index.js

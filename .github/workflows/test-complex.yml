@@ -1,0 +1,61 @@
+name: test-complex
+
+# Controls when the action will run
+on:
+
+  # Trigger the workflow on all pushes, except on tag creation
+  push:
+    branches:
+    - '**'
+    tags-ignore:
+    - '**'
+
+  # Trigger the workflow on all pull requests
+  pull_request: ~
+
+  # Allow workflow to be dispatched on demand
+  workflow_dispatch: ~
+
+jobs:
+  qa:
+    name: qa
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Code QA
+      run: whoami
+
+  ci:
+    name: ci
+    runs-on: ubuntu-20.04
+    needs: qa
+    steps:
+    - name: Build & Test
+      run: whoami
+
+  deploy:
+    name: deploy
+    runs-on: ubuntu-20.04
+    needs: ci
+    steps:
+    - name: Deploy
+      run: whoami
+
+  notify:
+    name: notify
+    runs-on: ubuntu-20.04
+    needs:
+    - qa
+    - ci
+    - deploy
+    if: always()
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Notify Teams
+      uses: ./
+      with:
+        incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
+        needs_context: ${{ toJSON(needs) }}
+        notify_on: |
+          success
