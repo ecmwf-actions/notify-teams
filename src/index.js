@@ -4,6 +4,7 @@ const main = require('./main');
 /**
  * A Github action that notifies about workflow status via Microsoft Teams.
  */
+// eslint-disable-next-line jest/require-hook
 main.call()
     .then((outputs) => {
         core.startGroup('Set Outputs');

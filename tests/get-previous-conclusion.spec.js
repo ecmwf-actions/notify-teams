@@ -61,7 +61,7 @@ describe('getPreviousConclusion', () => {
             }),
         }));
 
-        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual('unknown');
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
 
         Octokit.prototype.constructor.mockReset();
     });
@@ -77,7 +77,7 @@ describe('getPreviousConclusion', () => {
             },
         }));
 
-        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual('unknown');
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
 
         Octokit.prototype.constructor.mockReset();
     });
@@ -92,7 +92,7 @@ describe('getPreviousConclusion', () => {
             }),
         }));
 
-        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual('unknown');
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
 
         Octokit.prototype.constructor.mockReset();
     });
@@ -111,7 +111,7 @@ describe('getPreviousConclusion', () => {
             }),
         }));
 
-        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual('unknown');
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
 
         Octokit.prototype.constructor.mockReset();
     });
