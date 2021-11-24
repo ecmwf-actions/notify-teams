@@ -48,7 +48,6 @@ inputs:
     description: The ID of the current workflow run.
     required: true
     default: ${{ github.run_id }}
-
   github_token:
     description: Github access token, with `actions:read` scope.
     required: true
