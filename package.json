@@ -54,6 +54,12 @@
       "indent": [
         "error",
         4
+      ],
+      "json-schema-validator/no-invalid": [
+        "error",
+        {
+          "useSchemastoreCatalog": true
+        }
       ]
     }
   },
