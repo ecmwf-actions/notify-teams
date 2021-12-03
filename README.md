@@ -173,7 +173,7 @@ Whether or not the message has been sent.
 npm install
 ```
 
-A post-install script will deploy Git pre-commit hook, that conveniently runs a lint check, builds the action and stages the changes. To skip the hook, simply add `--no-verify` switch to the Git commit command.
+A courtesy Git pre-commit hook is provided, that conveniently runs a lint check, builds the action and stages any changes. To skip the hook, simply add `--no-verify` switch to the Git commit command.
 
 ### Build Action
 

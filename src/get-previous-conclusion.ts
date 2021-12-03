@@ -1,18 +1,18 @@
-const core = require('@actions/core');
-const { Octokit } = require('@octokit/core');
+import * as core from '@actions/core';
+import { Octokit } from '@octokit/core';
 
-const { isError } = require('./helper-functions');
+import { isError } from './helper-functions';
 
 /**
  * Returns conclusion of a previous workflow run.
  *
- * @param {String} repository Github repository owner and name to check.
- * @param {String} branch Branch name to check.
- * @param {String} workflowId The ID or filename of the CI workflow to check.
- * @param {String} githubToken Github access token, with `actions:read` scope.
- * @returns {String} Conclusion of a previous workflow run
+ * @param {string} repository Github repository owner and name to check.
+ * @param {string} branch Branch name to check.
+ * @param {string} workflowId The ID or filename of the CI workflow to check.
+ * @param {string} githubToken Github access token, with `actions:read` scope.
+ * @returns {Promise<string>} Conclusion of a previous workflow run.
  */
-module.exports = async (repository, branch, workflowId, githubToken) => {
+const getPreviousConclusion = async (repository: string, branch: string, workflowId: string, githubToken: string): Promise<string> => {
     core.startGroup('Previous Conclusion');
 
     const [owner, repo] = repository.split('/');
@@ -46,7 +46,7 @@ module.exports = async (repository, branch, workflowId, githubToken) => {
         workflowRuns = response.data.workflow_runs || [];
     }
     catch (error) {
-        isError(true, `Error fetching workflow runs for ${repo}: ${error.message}`);
+        if (error instanceof Error) isError(true, `Error fetching workflow runs for ${repo}: ${error.message}`);
         return previousConclusion;
     }
 
@@ -64,3 +64,5 @@ module.exports = async (repository, branch, workflowId, githubToken) => {
 
     return previousConclusion;
 };
+
+export default getPreviousConclusion;

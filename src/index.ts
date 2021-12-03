@@ -1,11 +1,12 @@
-const core = require('@actions/core');
-const main = require('./main');
+import * as core from '@actions/core';
+import main from './main';
 
 /**
  * A Github action that notifies about workflow status via Microsoft Teams.
  */
-main.call()
-    .then((outputs) => {
+// eslint-disable-next-line jest/require-hook
+main()
+    .then((outputs: ActionOutputs) => {
         core.startGroup('Set Outputs');
 
         core.info(`==> jobs: ${outputs.jobs}`);
@@ -19,6 +20,6 @@ main.call()
         core.setOutput('message_sent', outputs.message_sent);
 
         core.endGroup();
-    }).catch((failureMessage) => {
+    }).catch((failureMessage: string) => {
         core.setFailed(failureMessage);
     });

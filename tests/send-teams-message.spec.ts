@@ -1,12 +1,12 @@
-const core = require('@actions/core');
-const { HttpClient } = require('@actions/http-client');
+import * as core from '@actions/core';
+import { HttpClient } from '@actions/http-client';
 
-const sendTeamsMessage = require('../src/send-teams-message');
+import sendTeamsMessage from '../src/send-teams-message';
 
 jest.mock('@actions/core');
 jest.mock('@actions/http-client');
 
-const jobs = [
+const jobs: JobStatus[] = [
     {
         name: 'qa',
         value: 'success',
@@ -26,7 +26,7 @@ const jobs = [
 ];
 
 const previousConclusion = 'success';
-const notifyOn = [
+const notifyOn: NotifyOn[] = [
     'failure',
     'success',
     'fixed',
@@ -70,16 +70,19 @@ const messageCard = {
 const workflowStatus = 'failure';
 const messageSent = true;
 
-const result = {
+const result: SendResult = {
     workflowStatus,
     messageSent,
 };
+
+const errorObject = new Error('Oops!');
+const emptyObject = {};
 
 describe('sendTeamsMessage', () => {
     it('resolves the promise when message is sent on failure', async () => {
         expect.assertions(8);
 
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => Promise.resolve({
                 statusCode: 200,
             }),
@@ -93,8 +96,6 @@ describe('sendTeamsMessage', () => {
         expect(core.info).toHaveBeenCalledWith('==> Sending message to MS Teams...');
         expect(core.info).toHaveBeenCalledWith(`==> messageCard: ${JSON.stringify(messageCard, null, 4)}`);
         expect(core.info).not.toHaveBeenCalledWith('==> Skipping sending of message to MS Teams...');
-
-        HttpClient.prototype.constructor.mockReset();
     });
 
     it('resolves the promise when message is sent on cancellation', async () => {
@@ -105,7 +106,7 @@ describe('sendTeamsMessage', () => {
         ];
         cancelledJobs[1].value = 'cancelled';
 
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => Promise.resolve({
                 statusCode: 200,
             }),
@@ -115,8 +116,6 @@ describe('sendTeamsMessage', () => {
             ...result,
             workflowStatus: 'cancelled',
         });
-
-        HttpClient.prototype.constructor.mockReset();
     });
 
     it('resolves the promise when message is sent on success', async () => {
@@ -127,7 +126,7 @@ describe('sendTeamsMessage', () => {
         ];
         successfulJobs[1].value = 'success';
 
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => Promise.resolve({
                 statusCode: 200,
             }),
@@ -137,8 +136,6 @@ describe('sendTeamsMessage', () => {
             ...result,
             workflowStatus: 'success',
         });
-
-        HttpClient.prototype.constructor.mockReset();
     });
 
     it('resolves the promise when message is not sent on success', async () => {
@@ -149,7 +146,7 @@ describe('sendTeamsMessage', () => {
         ];
         successfulJobs[1].value = 'success';
 
-        const notifyOnFailure = [
+        const notifyOnFailure: NotifyOn[] = [
             'failure',
             'fixed',
         ];
@@ -171,11 +168,11 @@ describe('sendTeamsMessage', () => {
         ];
         successfulJobs[1].value = 'success';
 
-        const notifyOnFixed = [
+        const notifyOnFixed: NotifyOn[] = [
             'fixed',
         ];
 
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => Promise.resolve({
                 statusCode: 200,
             }),
@@ -185,14 +182,12 @@ describe('sendTeamsMessage', () => {
             ...result,
             workflowStatus: 'success',
         });
-
-        HttpClient.prototype.constructor.mockReset();
     });
 
     it('rejects the promise if request for sending messages returns unexpected status code', async () => {
         expect.assertions(1);
 
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => Promise.resolve({
                 statusCode: 500,
             }),
@@ -202,18 +197,18 @@ describe('sendTeamsMessage', () => {
             workflowStatus: 'success',
             messageSent: false,
         });
-
-        HttpClient.prototype.constructor.mockReset();
     });
 
-    it('rejects the promise if request for sending messages throws an error', async () => {
+    it.each`
+        error
+        ${errorObject}
+        ${emptyObject}
+    `('rejects the promise if request for sending messages throws an error ($error)', async ({ error }) => {
         expect.assertions(1);
 
-        const errorMessage = 'Oops!';
-
-        HttpClient.prototype.constructor.mockImplementation(() => ({
+        (HttpClient.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             postJson: () => {
-                throw new Error(errorMessage);
+                throw error;
             },
         }));
 
@@ -221,7 +216,5 @@ describe('sendTeamsMessage', () => {
             workflowStatus: 'success',
             messageSent: false,
         });
-
-        HttpClient.prototype.constructor.mockReset();
     });
 });

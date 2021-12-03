@@ -1,23 +1,23 @@
-const core = require('@actions/core');
-const { HttpClient } = require('@actions/http-client');
+import * as core from '@actions/core';
+import { HttpClient } from '@actions/http-client';
 
-const { isError } = require('./helper-functions');
+import { isError } from './helper-functions';
 
 /**
  * Sends a message to MS Teams if all required conditions are met.
  *
- * @param {Array} jobs The list of all current jobs and their states.
- * @param {String} previousConclusion The conclusion of the previous workflow run.
- * @param {Array} notifyOn The list of states to notify on.
- * @param {String} repository The currently checked out source repository name.
- * @param {String} branch The current repository branch name.
- * @param {String} sha The current repository commit SHA.
- * @param {String} workflow The name of the current workflow.
- * @param {String} runId The ID of the current workflow run.
- * @param {String} incomingWebhook Public URL of the Microsoft Teams incoming webhook.
- * @returns {Array<Object>} List of all jobs with `name` and `value` keys.
+ * @param {JobStatus[]} jobs The list of all current jobs and their states.
+ * @param {string} previousConclusion The conclusion of the previous workflow run.
+ * @param {NotifyOn[]} notifyOn The list of states to notify on.
+ * @param {string} repository The currently checked out source repository name.
+ * @param {string} branch The current repository branch name.
+ * @param {string} sha The current repository commit SHA.
+ * @param {string} workflow The name of the current workflow.
+ * @param {number|string} runId The ID of the current workflow run.
+ * @param {string} incomingWebhook Public URL of the Microsoft Teams incoming webhook.
+ * @returns {Promise<SendResult>} Result object with workflow status and information whether the message was sent.
  */
-module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, sha, workflow, runId, incomingWebhook) => {
+const sendTeamsMessage = async (jobs: JobStatus[], previousConclusion: string, notifyOn: NotifyOn[], repository: string, branch: string, sha: string, workflow: string, runId: number | string, incomingWebhook: string): Promise<SendResult> => {
     core.startGroup('Send Message to Teams');
 
     branch = branch.replace(/^refs\/heads\//, '');
@@ -31,7 +31,7 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
 
     // Check results of all jobs in the same run and determine workflow status and appropriate message values.
     if (jobs.filter((job) => job.value === 'failure').length) {
-        result.workflowStatus = 'failure';
+        (result as SendResult).workflowStatus = 'failure';
 
         messages = {
             title: 'failed',
@@ -40,7 +40,7 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
         };
     }
     else if (jobs.filter((job) => job.value === 'cancelled').length) {
-        result.workflowStatus = 'cancelled';
+        (result as SendResult).workflowStatus = 'cancelled';
 
         messages = {
             title: 'cancelled',
@@ -49,7 +49,7 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
         };
     }
     else {
-        result.workflowStatus = 'success';
+        (result as SendResult).workflowStatus = 'success';
 
         messages = {
             title: 'succeeded',
@@ -58,10 +58,10 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
         };
     }
 
-    core.info(`==> workflowStatus: ${result.workflowStatus}`);
+    core.info(`==> workflowStatus: ${(result as SendResult).workflowStatus}`);
     core.info(`==> messages: ${JSON.stringify(messages, null, 4)}`);
 
-    result.messageSent = false;
+    (result as SendResult).messageSent = false;
 
     // Send a status message to the configured MS Teams channel if:
     // - failure notification is active and current workflow run has failed or was cancelled
@@ -71,17 +71,17 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
         (
             notifyOn.includes('failure')
             && (
-                result.workflowStatus === 'failure'
-                || result.workflowStatus === 'cancelled'
+                (result as SendResult).workflowStatus === 'failure'
+                || (result as SendResult).workflowStatus === 'cancelled'
             )
         )
         || (
             notifyOn.includes('success')
-            && result.workflowStatus === 'success'
+            && (result as SendResult).workflowStatus === 'success'
         )
         || (
             notifyOn.includes('fixed')
-            && result.workflowStatus === 'success'
+            && (result as SendResult).workflowStatus === 'success'
             && (
                 previousConclusion === 'failure' || previousConclusion === 'cancelled'
             )
@@ -124,11 +124,11 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
                 return Promise.reject(result);
         }
         catch (error) {
-            isError(true, `Error sending message to MS Teams: ${error.message}`);
+            if (error instanceof Error) isError(true, `Error sending message to MS Teams: ${error.message}`);
             return Promise.reject(result);
         }
 
-        result.messageSent = true;
+        (result as SendResult).messageSent = true;
     }
     else {
         core.info('==> Skipping sending of message to MS Teams...');
@@ -136,5 +136,7 @@ module.exports = async (jobs, previousConclusion, notifyOn, repository, branch, 
 
     core.endGroup();
 
-    return result;
+    return result as SendResult;
 };
+
+export default sendTeamsMessage;
