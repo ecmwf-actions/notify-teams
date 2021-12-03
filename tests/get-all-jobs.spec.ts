@@ -1,14 +1,14 @@
-const getAllJobs = require('../src/get-all-jobs');
+import getAllJobs from '../src/get-all-jobs';
 
 const job = 'notify';
-const jobContext = {
+const jobContext: CurrentJobContext = {
     status: 'success',
     container: {
         network: 'github_network_20b575dd5aef46dfb2259c89c0c1664d',
         id: 'ca715f77d221a6c1b187e8594462fb52a21cfd0a7cdf9cb25856de1d16e8a47d',
     },
 };
-const needsContext = {
+const needsContext: NeedsContext = {
     qa: {
         outputs: {},
         result: 'success',
@@ -23,7 +23,7 @@ const needsContext = {
     },
 };
 
-const jobs = [
+const jobs: JobStatus[] = [
     {
         name: 'qa',
         value: 'success',

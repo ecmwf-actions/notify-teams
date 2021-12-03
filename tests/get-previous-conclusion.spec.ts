@@ -1,7 +1,7 @@
-const core = require('@actions/core');
-const { Octokit } = require('@octokit/core');
+import * as core from '@actions/core';
+import { Octokit } from '@octokit/core';
 
-const getPreviousConclusion = require('../src/get-previous-conclusion');
+import getPreviousConclusion from '../src/get-previous-conclusion';
 
 jest.mock('@actions/core');
 jest.mock('@octokit/core');
@@ -13,6 +13,8 @@ const githubToken = '***';
 const runId = 123456789;
 const headSha = 'f0b00fd201c7ddf14e1572a10d5fb4577c4bd6a2';
 const previousConclusion = 'success';
+const errorObject = new Error('Oops!');
+const emptyObject = {};
 
 const resolveWorkflowRuns = () => Promise.resolve({
     status: 200,
@@ -32,7 +34,7 @@ describe('getPreviousConclusion', () => {
     it('resolves the promise if workflow run was successful', async () => {
         expect.assertions(6);
 
-        Octokit.prototype.constructor.mockImplementation((options) => {
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce((options) => {
             if (!options.auth) throw Error('Octokit authentication missing, did you pass the auth key?');
             // eslint-disable-next-line jest/no-if
             if (options.auth !== githubToken) throw Error('Octokit authentication unsuccessful, please try again.');
@@ -48,44 +50,40 @@ describe('getPreviousConclusion', () => {
         expect(core.info).toHaveBeenCalledWith(`==> workflowId: ${workflowId}`);
         expect(core.info).toHaveBeenCalledWith(`==> lastRunId: ${runId}`);
         expect(core.info).toHaveBeenCalledWith(`==> previousConclusion: ${previousConclusion}`);
-
-        Octokit.prototype.constructor.mockReset();
     });
 
     it('resolves the promise if unexpected status code is returned', async () => {
         expect.assertions(1);
 
-        Octokit.prototype.constructor.mockImplementation(() => ({
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             request: () => Promise.resolve({
                 status: 500,
             }),
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
-
-        Octokit.prototype.constructor.mockReset();
     });
 
-    it('resolves the promise if request throws an error', async () => {
+    it.each`
+        error
+        ${errorObject}
+        ${emptyObject}
+    `('resolves the promise if request throws an error ($error)', async ({ error }) => {
         expect.assertions(1);
 
-        const errorMessage = 'Oops!';
-
-        Octokit.prototype.constructor.mockImplementation(() => ({
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             request: () => {
-                throw new Error(errorMessage);
+                throw error;
             },
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
-
-        Octokit.prototype.constructor.mockReset();
     });
 
     it('resolves the promise if workflow runs response is undefined', async () => {
         expect.assertions(1);
 
-        Octokit.prototype.constructor.mockImplementation(() => ({
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             request: () => Promise.resolve({
                 status: 200,
                 data: {},
@@ -93,14 +91,12 @@ describe('getPreviousConclusion', () => {
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
-
-        Octokit.prototype.constructor.mockReset();
     });
 
     it('resolves the promise if last workflow run has unexpected data', async () => {
         expect.assertions(1);
 
-        Octokit.prototype.constructor.mockImplementation(() => ({
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
             request: () => Promise.resolve({
                 status: 200,
                 data: {
@@ -112,7 +108,5 @@ describe('getPreviousConclusion', () => {
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
-
-        Octokit.prototype.constructor.mockReset();
     });
 });

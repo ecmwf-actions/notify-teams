@@ -1,20 +1,20 @@
-const core = require('@actions/core');
+import * as core from '@actions/core';
 
-const getAllJobs = require('./get-all-jobs');
-const getPreviousConclusion = require('./get-previous-conclusion');
-const sendTeamsMessage = require('./send-teams-message');
+import getAllJobs from './get-all-jobs';
+import getPreviousConclusion from './get-previous-conclusion';
+import sendTeamsMessage from './send-teams-message';
 
 /**
  * First, the main function parses all workflow jobs that were passed to the action via job and needs contexts. Then,
  *   it retrieves the conclusion of a previous workflow run, if applicable. A message will be posted to Teams in case
  *   configured conditions were met.
  *
- * @returns {Promise} Outputs object on resolution, failure message on rejection.
+ * @returns {Promise<ActionOutputs>} Outputs object on resolution, failure message on rejection.
  */
-module.exports = async () => {
+const main = async (): Promise<ActionOutputs> => {
     try {
         const incomingWebhook = core.getInput('incoming_webhook', { required: true });
-        const notifyOn = core.getMultilineInput('notify_on', { required: true });
+        const notifyOn = core.getMultilineInput('notify_on', { required: true }) as NotifyOn[];
         const job = core.getInput('job', { required: true });
         const jobContext = JSON.parse(core.getInput('job_context', { required: true }));
         const needsContext = JSON.parse(core.getInput('needs_context', { required: false }) || '{}');
@@ -32,7 +32,7 @@ module.exports = async () => {
 
         const result = await sendTeamsMessage(jobs, previousConclusion, notifyOn, repository, branch, sha, workflow, runId, incomingWebhook);
 
-        const outputs = {
+        const outputs: ActionOutputs = {
             jobs: JSON.stringify(jobs, null, 4),
             previous_conclusion: previousConclusion,
             workflow_status: result.workflowStatus,
@@ -42,6 +42,9 @@ module.exports = async () => {
         return Promise.resolve(outputs);
     }
     catch (error) {
-        return Promise.reject(error.message);
+        if (error instanceof Error) return Promise.reject(error.message);
+        return Promise.reject();
     }
 };
+
+export default main;
