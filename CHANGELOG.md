@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.0](https://github.com/ecmwf-actions/notify-teams/compare/v1...v1.1.0)
+## [v1.1.1](https://github.com/ecmwf-actions/notify-teams/compare/v1.1.0...v1.1.1)
+
+### Fixed
+
+- Fixed #4: Detection of the previous workflow conclusion does not consider recent failures. [`#4`](https://github.com/ecmwf-actions/notify-teams/issues/4)
+
+### Commits
+
+- Merge tag 'v1.1.0' into develop [`268f617`](https://github.com/ecmwf-actions/notify-teams/commit/268f6170ef3d2862f152c2b1cd918c643db7747f)
+
+## [v1.1.0](https://github.com/ecmwf-actions/notify-teams/compare/v1...v1.1.0) - 2021-12-03
+
+## [v1](https://github.com/ecmwf-actions/notify-teams/compare/v1.0.0...v1) - 2021-12-03
 
 ### Merged
 
@@ -17,8 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated code to TypeScript. [`b43e57b`](https://github.com/ecmwf-actions/notify-teams/commit/b43e57bf21832b2ad6daff37166b72dbf8b19b59)
 - Switched to reusable workflow. [`9221dff`](https://github.com/ecmwf-actions/notify-teams/commit/9221dff23a2cdd97b76fd3a3a0abd3da1dadcf15)
 - Removed unnecessary workflow triggers. [`e4c1b47`](https://github.com/ecmwf-actions/notify-teams/commit/e4c1b47f9fca0e554db8fb9dd4d6f0ca8f7f784c)
-
-## [v1](https://github.com/ecmwf-actions/notify-teams/compare/v1.0.0...v1) - 2021-09-24
 
 ## v1.0.0 - 2021-09-24
 

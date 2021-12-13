@@ -43,20 +43,22 @@ const getPreviousConclusion = async (repository: string, branch: string, workflo
         if (isError(response.status != 200, `Wrong response code while fetching workflow runs for ${repo}: ${response.status}`))
             return previousConclusion;
 
-        workflowRuns = response.data.workflow_runs || [];
+        workflowRuns = response.data.workflow_runs as WorkflowRun[] || [];
     }
     catch (error) {
         if (error instanceof Error) isError(true, `Error fetching workflow runs for ${repo}: ${error.message}`);
         return previousConclusion;
     }
 
-    const lastRun = workflowRuns.shift();
+    // Consider only workflow runs that:
+    // - have status "completed"
+    workflowRuns = workflowRuns.filter((workflowRun) => workflowRun.status === 'completed');
 
-    if (lastRun) {
-        core.info(`==> lastRunId: ${lastRun.id || 'unknown'}`);
+    const lastRun = workflowRuns.shift() || {};
 
-        previousConclusion = lastRun.conclusion || 'unknown';
-    }
+    core.info(`==> lastRunId: ${lastRun?.id || 'unknown'}`);
+
+    previousConclusion = lastRun?.conclusion || 'unknown';
 
     core.info(`==> previousConclusion: ${previousConclusion}`);
 
