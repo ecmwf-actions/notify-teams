@@ -12,21 +12,42 @@ const workflowId = 'ci.yml';
 const githubToken = '***';
 const runId = 123456789;
 const headSha = 'f0b00fd201c7ddf14e1572a10d5fb4577c4bd6a2';
-const previousConclusion = 'success';
+const previousConclusionSuccess = 'success';
+const previousConclusionFailure = 'failure';
 const errorObject = new Error('Oops!');
 const emptyObject = {};
+const successfulWorkflowRuns: WorkflowRun[] = [
+    {
+        id: runId + 1,
+        head_sha: 'de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3',
+        status: 'in_progress',
+    },
+    {
+        id: runId,
+        head_sha: headSha,
+        status: 'completed',
+        conclusion: previousConclusionSuccess,
+    },
+];
 
-const resolveWorkflowRuns = () => Promise.resolve({
-    status: 200,
+const failedWorkflowRuns: WorkflowRun[] = [
+    {
+        id: runId + 1,
+        head_sha: 'de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3',
+        status: 'in_progress',
+    },
+    {
+        id: runId,
+        head_sha: headSha,
+        status: 'completed',
+        conclusion: previousConclusionFailure,
+    },
+];
+
+const resolveWorkflowRuns = (status: number, workflowRuns: WorkflowRun[] = []) => Promise.resolve({
+    status,
     data: {
-        workflow_runs: [
-            {
-                id: runId,
-                head_sha: headSha,
-                status: 'completed',
-                conclusion: previousConclusion,
-            },
-        ],
+        workflow_runs: workflowRuns,
     },
 });
 
@@ -40,25 +61,38 @@ describe('getPreviousConclusion', () => {
             if (options.auth !== githubToken) throw Error('Octokit authentication unsuccessful, please try again.');
 
             return {
-                request: () => resolveWorkflowRuns(),
+                request: () => resolveWorkflowRuns(200, successfulWorkflowRuns),
             };
         });
 
-        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual(previousConclusion);
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual(previousConclusionSuccess);
         expect(core.info).toHaveBeenCalledWith(`==> repository: ${repository}`);
         expect(core.info).toHaveBeenCalledWith(`==> branch: ${branch}`);
         expect(core.info).toHaveBeenCalledWith(`==> workflowId: ${workflowId}`);
         expect(core.info).toHaveBeenCalledWith(`==> lastRunId: ${runId}`);
-        expect(core.info).toHaveBeenCalledWith(`==> previousConclusion: ${previousConclusion}`);
+        expect(core.info).toHaveBeenCalledWith(`==> previousConclusion: ${previousConclusionSuccess}`);
+    });
+
+    it('resolves the promise if workflow run was unsuccessful', async () => {
+        expect.assertions(6);
+
+        (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
+            request: () => resolveWorkflowRuns(200, failedWorkflowRuns),
+        }));
+
+        await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toStrictEqual(previousConclusionFailure);
+        expect(core.info).toHaveBeenCalledWith(`==> repository: ${repository}`);
+        expect(core.info).toHaveBeenCalledWith(`==> branch: ${branch}`);
+        expect(core.info).toHaveBeenCalledWith(`==> workflowId: ${workflowId}`);
+        expect(core.info).toHaveBeenCalledWith(`==> lastRunId: ${runId}`);
+        expect(core.info).toHaveBeenCalledWith(`==> previousConclusion: ${previousConclusionFailure}`);
     });
 
     it('resolves the promise if unexpected status code is returned', async () => {
         expect.assertions(1);
 
         (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
-            request: () => Promise.resolve({
-                status: 500,
-            }),
+            request: () => resolveWorkflowRuns(500),
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
@@ -97,14 +131,7 @@ describe('getPreviousConclusion', () => {
         expect.assertions(1);
 
         (Octokit.prototype.constructor as jest.Mock).mockImplementationOnce(() => ({
-            request: () => Promise.resolve({
-                status: 200,
-                data: {
-                    workflow_runs: [
-                        {},
-                    ],
-                },
-            }),
+            request: () => resolveWorkflowRuns(200, []),
         }));
 
         await expect(getPreviousConclusion(repository, branch, workflowId, githubToken)).resolves.toBe('unknown');
