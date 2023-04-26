@@ -3,7 +3,8 @@ description: |
   A Github action that notifies about workflow status via Microsoft Teams.
 inputs:
   incoming_webhook:
-    description: Public URL of the Microsoft Teams incoming webhook. To get the value, make sure that channel in Teams
+    description:
+      Public URL of the Microsoft Teams incoming webhook. To get the value, make sure that channel in Teams
       has the appropriate connector set up.
     required: true
   notify_on:
@@ -24,7 +25,8 @@ inputs:
     description: The list of dependent job contexts, must be encoded as JSON.
     required: false
   repository:
-    description: The currently checked out source repository name. Repository names should follow the standard Github
+    description:
+      The currently checked out source repository name. Repository names should follow the standard Github
       `owner/name` format.
     required: true
     default: ${{ github.repository }}
@@ -63,5 +65,5 @@ outputs:
   message_sent:
     description: Whether or not the message has been sent.
 runs:
-  using: node12
+  using: node16
   main: dist/index.js

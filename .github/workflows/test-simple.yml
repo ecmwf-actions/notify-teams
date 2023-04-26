@@ -1,33 +1,31 @@
 name: test-simple
 
-# Controls when the workflow will run
 on:
-
-  # Trigger the workflow on all pushes, except on tag creation
   push:
     branches:
-    - '**'
+      - "main"
     tags-ignore:
-    - '**'
+      - "**"
 
-  # Allow workflow to be dispatched on demand
+  pull_request: ~
+
   workflow_dispatch: ~
 
 jobs:
   ci:
     name: ci
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Build & Test
-      run: whoami
+      - name: Build & Test
+        run: whoami
 
-    - name: Notify Teams
-      if: always()
-      uses: ./
-      with:
-        incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
-        notify_on: |
-          success
+      - name: Notify Teams
+        if: always()
+        uses: ./
+        with:
+          incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
+          notify_on: |
+            success
