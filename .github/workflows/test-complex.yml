@@ -1,15 +1,14 @@
 name: test-complex
 
-# Controls when the workflow will run
 on:
-  # Trigger the workflow on all pushes, except on tag creation
   push:
     branches:
-      - "**"
+      - "main"
     tags-ignore:
       - "**"
 
-  # Allow workflow to be dispatched on demand
+  pull_request: ~
+
   workflow_dispatch: ~
 
 jobs:
