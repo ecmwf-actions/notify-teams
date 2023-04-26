@@ -19,3 +19,6 @@ jobs:
     uses: ecmwf-actions/reusable-workflows/.github/workflows/ci-node.yml@v2
     with:
       codecov_upload: true
+      notify_teams: true
+    secrets:
+      incoming_webhook: ${{ secrets.MS_TEAMS_INCOMING_WEBHOOK }}
