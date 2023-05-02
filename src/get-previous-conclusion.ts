@@ -24,6 +24,11 @@ const getPreviousConclusion = async (repository: string, branch: string, workflo
     core.info(`==> branch: ${branch}`);
     core.info(`==> workflowId: ${workflowId}`);
 
+    const pullRequestRegex = /refs\/pull\/(\d+)\/merge/;
+    const pullRequestMatch = branch.match(pullRequestRegex);
+    const isPullRequest = pullRequestMatch !== null;
+    const pullNumber = isPullRequest ? parseInt(pullRequestMatch[1], 10) : null;
+
     // Fetch previous workflow run conclusion via REST API for the same branch.
     const octokit = new Octokit({
         auth: githubToken,
@@ -36,7 +41,8 @@ const getPreviousConclusion = async (repository: string, branch: string, workflo
         const response = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs', {
             owner,
             repo,
-            branch,
+            branch: isPullRequest ? undefined : branch,
+            pull_number: isPullRequest ? pullNumber : undefined,
             workflow_id: workflowId,
         });
 
